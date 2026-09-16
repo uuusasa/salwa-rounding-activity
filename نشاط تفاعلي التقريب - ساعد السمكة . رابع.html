@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>نشاط التقريب التفاعلي - أ : سلوى العيافي</title>
+<style>
+body{margin:0;font-family:Tahoma,Arial,sans-serif;background:#fff9df;background-image:linear-gradient(#d8d8d2 2px,transparent 2px),linear-gradient(90deg,#d8d8d2 2px,transparent 2px);background-size:70px 70px;color:#315570}
+.wrap{max-width:1000px;margin:auto;padding:18px}
+.card{background:#fff;border-radius:30px;padding:18px;box-shadow:0 8px 25px #7896a633}
+h1{margin:0 0 14px;background:#ffd1df;border-radius:14px;padding:13px;text-align:center;font-size:clamp(19px,3vw,31px)}
+.help{text-align:center;background:#eef9ff;border-radius:15px;padding:11px;font-weight:bold;font-size:17px}
+.controls{text-align:center;margin:12px 0}
+select{font-size:18px;padding:8px 14px;border:3px solid #8bc9ed;border-radius:12px;background:white;font-weight:bold}
+.score{text-align:center;margin:10px;font-weight:bold;font-size:18px}
+.board{position:relative;width:min(900px,100%);margin:auto;background:#fff;border-radius:24px;min-height:650px;overflow:hidden}
+.decor{position:absolute;font-size:55px;z-index:0}
+.fish1{left:3%;top:5%}.brain{right:5%;top:2%}.stars{left:31%;top:22%}.shell{right:5%;top:47%}.kids{left:5%;top:55%}.fish2{left:3%;bottom:17%}.star2{right:10%;bottom:4%}
+.bubble{position:absolute;width:125px;height:125px;border-radius:50%;border:5px solid #3196cf;background:radial-gradient(circle at 30% 25%,#eaf9ff 0 10%,#b9e3f8 35%,#65afe0 100%);box-shadow:inset 6px 6px 0 #ffffff66,inset -7px -7px 0 #559fd055,0 5px 8px #527e9733;color:#d84d73;font-size:46px;font-weight:900;cursor:pointer;z-index:2;transition:.18s}
+.bubble:hover{transform:scale(1.08);box-shadow:0 0 0 7px #7dd3f755,inset 6px 6px 0 #ffffff77,inset -7px -7px 0 #559fd066,0 8px 15px #527e9755}
+.bubble.done{background:linear-gradient(145deg,#c7f0d3,#74c891);color:#167047}
+.b1{top:16%;left:8%}
+.b2{top:16%;left:29%}
+.b3{top:16%;left:50%}
+.b4{top:16%;left:71%}
+.b5{top:48%;left:39%}
+.panel{margin:16px auto 0;max-width:700px;text-align:center;background:#fff7fb;border:3px dashed #efa0bd;border-radius:20px;padding:15px}
+.q{font-size:21px;font-weight:bold;min-height:30px}.answers{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:10px}
+.answer{background:#fff;border:2px solid #9dcfe8;border-radius:12px;padding:9px 17px;font-size:19px;font-weight:bold;cursor:pointer}
+.feedback{font-weight:bold;font-size:18px;min-height:28px;margin-top:8px}
+button.action{border:0;border-radius:13px;padding:10px 20px;background:#76c2e8;color:white;font-weight:bold;font-size:17px;cursor:pointer;margin:8px}
+.footer{text-align:center;color:#e45182;font-size:28px;font-weight:900;margin-top:15px}
+@media(max-width:650px){
+ .board{min-height:570px}
+ .bubble{width:82px;height:82px;font-size:31px}
+ .b1{top:16%;left:8%}
+.b2{top:16%;left:29%}
+.b3{top:16%;left:50%}
+.b4{top:16%;left:71%}
+.b5{top:48%;left:39%}
+ .decor{font-size:35px}
+}
+</style>
+</head>
+<body>
+<div class="wrap"><div class="card">
+<h1>🐟 قرّب كل عدد في الدائرة لأقرب قيمة منزلية لمساعدة السمكة بالخروج 🐟</h1>
+<div class="help">اضغطي على إحدى <b>الدوائر الزرقاء الخمس</b>، ثم اختاري ناتج التقريب الصحيح.</div>
+<div class="controls">🎯 الدوائر متنوعة: المئات • الآلاف • الملايين — اضغطي على كل دائرة لمعرفة المطلوب</div>
+<div class="score">⭐ الدرجة: <span id="score">0</span> &nbsp; | &nbsp; 🐠 تم الحل: <span id="done">0</span> / 5</div>
+
+<div class="board" id="board">
+<div class="decor fish1">🦈</div><div class="decor brain">🧠💡</div><div class="decor stars">⭐🌟</div>
+<div class="decor shell">🪸🐚</div><div class="decor kids">👧🏻👧🏻💡</div><div class="decor fish2">🦈</div><div class="decor star2">⭐🐚</div>
+</div>
+
+<div class="panel"><div class="q" id="q">🌟 اختاري دائرة للبدء</div><div class="answers" id="answers"></div><div class="feedback" id="feedback"></div></div>
+<div style="text-align:center"><button class="action" onclick="reset()">🔄 إعادة النشاط</button><button class="action" onclick="result()">🏆 النتيجة</button></div>
+<div class="footer">أ : سلوى العيافي</div>
+</div></div>
+
+<script>
+const nums=[347, 5824, 736500, 2849000, 61570000];
+const cls=['b1','b2','b3','b4','b5'];
+const targetPlaces=[100,1000,1000000,1000000,1000000];
+const targetNames=['المئات','الآلاف','الملايين','الملايين','الملايين'];
+
+const ar=n=>String(n).replace(/[0-9]/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
+let score=0,done=0,selected=-1,solved=new Set();
+const $=id=>document.getElementById(id);
+const place=$('place'), board=$('board'), q=$('q'), answers=$('answers'), feedback=$('feedback');
+const scoreEl=$('score'), doneEl=$('done');
+function round(n,p){return Math.floor((n+p/2)/p)*p;}
+function placeName(p){return p===10?'عشرة':p===100?'مئة':'ألف';}
+function build(){
+  nums.forEach((n,i)=>{
+    const b=document.createElement('button');
+    b.type='button'; b.className='bubble '+cls[i]; b.textContent=ar(n);
+    b.setAttribute('aria-label','العدد '+n);
+    b.addEventListener('click',()=>choose(i));
+    board.appendChild(b);
+  });
+}
+function choose(i){
+ selected=i;
+ let p=targetPlaces[i], correct=round(nums[i],p);
+ q.textContent='قرّبي '+ar(nums[i])+' إلى أقرب '+targetNames[i]+':';
+ feedback.textContent=''; answers.innerHTML='';
+ let vals=[correct,correct-p,correct+p,correct+2*p].filter(x=>x>=0);
+ [...new Set(vals)].sort(()=>Math.random()-.5).forEach(v=>{
+   let a=document.createElement('button');a.className='answer';a.textContent=ar(v);
+   a.onclick=()=>check(v);answers.appendChild(a)
+ });
+}
+function check(v){
+ let p=targetPlaces[selected],c=round(nums[selected],p);
+ if(v===c){
+  if(!solved.has(selected)){solved.add(selected);score++;done++}
+  feedback.textContent='🎉 أحسنتِ! إجابة صحيحة.';
+  feedback.style.color='#16804c';
+  board.querySelectorAll('.bubble')[selected].classList.add('done');
+ }else{
+  feedback.textContent='💡 حاولي مرة أخرى.';
+  feedback.style.color='#d65a72'
+ }
+ document.getElementById('score').textContent=score;
+ document.getElementById('done').textContent=done;
+}
+function reset(){location.reload();}
+function result(){
+  q.textContent='🏆 نتيجتك: '+ar(score)+' من '+ar(nums.length);
+  answers.innerHTML=''; feedback.textContent=score===5?'رائع! أكملتِ الدوائر الخمس بنجاح 🌟':'يمكنك العودة إلى الدوائر غير المحلولة وإكمالها 🐟';
+}
+place.addEventListener('change',()=>{selected=-1;q.textContent='🌟 اختاري دائرة للبدء';answers.innerHTML='';feedback.textContent='';});
+build();
+</script>
+</body></html>
